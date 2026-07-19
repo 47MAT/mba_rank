@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0E1620">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>پیش‌بین رتبهٔ ارشد MBA</title>
+<style>
+  :root{
+    --bg:#0E1620; --bg2:#0B1118;
+    --card:#161F2B; --card2:#1B2734;
+    --line:rgba(255,255,255,.07);
+    --line2:rgba(255,255,255,.12);
+    --txt:#E9EFF5; --muted:#8597A9; --faint:#5E7081;
+    --amber:#F4B642; --amber-dim:rgba(244,182,66,.14);
+    --teal:#45C4B0;  --teal-dim:rgba(69,196,176,.14);
+    --danger:#E8636B;
+    --radius:16px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(120% 60% at 50% -10%, #15212F 0%, var(--bg) 45%, var(--bg2) 100%);
+    color:var(--txt);
+    font-family:"Segoe UI", Tahoma, Geneva, system-ui, -apple-system, sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding:18px 14px 40px;
+    line-height:1.6;
+  }
+  .wrap{max-width:560px; margin:0 auto;}
+  .num{font-variant-numeric:tabular-nums; letter-spacing:.5px;}
+
+  /* header */
+  header{margin:6px 2px 20px;}
+  header .eyebrow{font-size:12px; color:var(--amber); letter-spacing:1px; font-weight:600;}
+  header h1{font-size:22px; font-weight:700; margin:4px 0 2px;}
+  header p{font-size:13px; color:var(--muted); margin:0;}
+
+  /* card */
+  .card{
+    background:linear-gradient(180deg,var(--card),var(--card2));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .card-title{font-size:13px; color:var(--muted); margin:0 0 14px; font-weight:600;}
+
+  /* inputs */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .field label{display:block; font-size:12.5px; color:var(--muted); margin:0 2px 6px;}
+  .field input{
+    width:100%; background:#0E151E; color:var(--txt);
+    border:1px solid var(--line2); border-radius:11px;
+    padding:12px 13px; font-size:17px; text-align:center;
+    font-variant-numeric:tabular-nums; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus{border-color:var(--amber); box-shadow:0 0 0 3px var(--amber-dim);}
+  .field.bad input{border-color:var(--danger); box-shadow:0 0 0 3px rgba(232,99,107,.13);}
+  .field .err{font-size:11px; color:var(--danger); margin:5px 2px 0; min-height:0; display:none;}
+  .field.bad .err{display:block;}
+
+  /* live result hero */
+  .hero{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;}
+  .res{
+    border-radius:13px; padding:14px 12px; text-align:center;
+    border:1px solid var(--line2); background:#0E151E; position:relative; overflow:hidden;
+  }
+  .res::before{content:""; position:absolute; inset:0 0 auto 0; height:3px;}
+  .res.y::before{background:var(--amber);} .res.t::before{background:var(--teal);}
+  .res .tag{font-size:12px; font-weight:600;}
+  .res.y .tag{color:var(--amber);} .res.t .tag{color:var(--teal);}
+  .res .rank{font-size:38px; font-weight:700; line-height:1.1; margin:6px 0 2px;}
+  .res .rank.placeholder{color:var(--faint); font-weight:400;}
+  .res .range{font-size:12px; color:var(--muted);}
+  .res .oor{font-size:10.5px; color:var(--danger); margin-top:5px; display:none;}
+  .res.warn .oor{display:block;}
+  .composite{text-align:center; font-size:12px; color:var(--muted); margin-top:12px;}
+  .composite b{color:var(--txt); font-weight:600;}
+
+  /* buttons */
+  .btn{
+    display:block; width:100%; border:none; border-radius:12px;
+    padding:14px; font-size:15.5px; font-weight:700; cursor:pointer;
+    font-family:inherit; margin-top:14px; transition:transform .05s, opacity .15s;
+  }
+  .btn:active{transform:scale(.985);}
+  .btn-primary{background:var(--amber); color:#1A1205;}
+  .btn-primary:disabled{opacity:.4; cursor:not-allowed;}
+  .btn-row{display:flex; gap:9px; margin-top:14px;}
+  .btn-row .btn{margin-top:0; padding:11px; font-size:13px; font-weight:600;}
+  .btn-ghost{background:transparent; border:1px solid var(--line2); color:var(--txt);}
+  .btn-ghost.danger{color:var(--danger); border-color:rgba(232,99,107,.4);}
+
+  /* table */
+  .tbl-card{padding:14px 8px 8px;}
+  .tbl-head{display:flex; justify-content:space-between; align-items:center; padding:0 8px 12px;}
+  .tbl-head .count{font-size:12px; color:var(--muted);}
+  .scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table{width:100%; border-collapse:collapse; font-size:13px; min-width:430px;}
+  th,td{padding:9px 7px; text-align:center; white-space:nowrap;}
+  thead th{font-size:11px; color:var(--muted); font-weight:600; border-bottom:1px solid var(--line2);}
+  thead th.y{color:var(--amber);} thead th.t{color:var(--teal);}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr.best{background:linear-gradient(90deg, rgba(244,182,66,.07), transparent);}
+  .code{font-weight:700; font-size:14px;}
+  .badge{display:inline-block; font-size:9px; background:var(--amber-dim); color:var(--amber);
+    border-radius:6px; padding:2px 6px; margin-right:5px; vertical-align:middle; font-weight:700;}
+  .pct{color:var(--muted); font-size:12px;}
+  .rk{font-weight:700; font-size:15px;}
+  .rk.y{color:var(--amber);} .rk.t{color:var(--teal);}
+  .rk small{display:block; font-weight:400; font-size:10px; color:var(--faint); margin-top:1px;}
+  .del{background:none; border:none; color:var(--faint); font-size:18px; cursor:pointer; padding:4px 6px; line-height:1;}
+  .del:active{color:var(--danger);}
+  .empty{text-align:center; color:var(--faint); font-size:13px; padding:26px 10px;}
+  @keyframes flash{0%{background:var(--amber-dim);}100%{background:transparent;}}
+  tr.new{animation:flash 1.1s ease-out;}
+
+  /* info / disclaimer */
+  details{margin-top:4px;}
+  details summary{cursor:pointer; font-size:13px; color:var(--muted); padding:6px 2px; list-style:none;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; color:var(--faint);}
+  details[open] summary::before{content:"▾ ";}
+  .info{font-size:12.5px; color:var(--muted); line-height:1.85;}
+  .info b{color:var(--txt);}
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:#243140; color:var(--txt); border:1px solid var(--line2);
+    padding:11px 18px; border-radius:12px; font-size:13px; opacity:0;
+    transition:opacity .25s, transform .25s; pointer-events:none; z-index:50; max-width:90%;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  footer{text-align:center; font-size:11px; color:var(--faint); margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">کنکور کارشناسی ارشد MBA</div>
+    <h1>برنامهٔ تخمین رتبه</h1>
+    <p>درصد دروس و معدل خود را وارد کنید تا رتبهٔ تخمینی بر اساس دو مدل (۱۴۰۴ و ۱۴۰۳) محاسبه و در جدول ذخیره شود. برای استفادهٔ بهتر از برنامه، توضیحات را مطالعه کنید.</p>
+  </header>
+
+  <!-- input -->
+  <div class="card">
+    <p class="card-title">ورودی داوطلب</p>
+    <div class="grid">
+      <div class="field" id="f-math">
+        <label>درصد ریاضی</label>
+        <input type="text" inputmode="decimal" id="math">
+        <div class="err">عددی بین ۳۳.۳۳- تا ۱۰۰</div>
+      </div>
+      <div class="field" id="f-gmat">
+        <label>درصد جیمت (GMAT)</label>
+        <input type="text" inputmode="decimal" id="gmat">
+        <div class="err">عددی بین ۳۳.۳۳- تا ۱۰۰</div>
+      </div>
+      <div class="field" id="f-eng">
+        <label>درصد زبان</label>
+        <input type="text" inputmode="decimal" id="eng">
+        <div class="err">عددی بین ۳۳.۳۳- تا ۱۰۰</div>
+      </div>
+      <div class="field" id="f-gpa">
+        <label>معدل (برای مدل ۱۴۰۴)</label>
+        <input type="text" inputmode="decimal" id="gpa">
+        <div class="err">عددی بین ۰ تا ۲۰</div>
+      </div>
+    </div>
+
+    <!-- live hero -->
+    <div class="hero" style="margin-top:16px;">
+      <div class="res y" id="res1404">
+        <div class="tag">مدل ۱۴۰۴</div>
+        <div class="rank placeholder num" id="r1404">—</div>
+        <div class="range num" id="rng1404">با معدل</div>
+        <div class="oor">خارج از بازهٔ دادهٔ آموزش</div>
+      </div>
+      <div class="res t" id="res1403">
+        <div class="tag">مدل ۱۴۰۳</div>
+        <div class="rank placeholder num" id="r1403">—</div>
+        <div class="range num" id="rng1403">بدون معدل</div>
+        <div class="oor">خارج از بازهٔ دادهٔ آموزش</div>
+      </div>
+    </div>
+    <div class="composite" id="composite"></div>
+
+    <button class="btn btn-primary" id="addBtn" disabled>افزودن به جدول</button>
+  </div>
+
+  <!-- table -->
+  <div class="card tbl-card">
+    <div class="tbl-head">
+      <p class="card-title" style="margin:0;">جدول مقایسه (مرتب بر اساس رتبهٔ ۱۴۰۴)</p>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>کد</th><th>جیمت</th><th>ریاضی</th><th>زبان</th><th>معدل</th>
+            <th class="y">رتبهٔ ۱۴۰۴</th><th class="t">رتبهٔ ۱۴۰۳</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty">هنوز داده‌ای اضافه نکرده‌ای.</div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="exportBtn">دانلود پشتیبان</button>
+      <button class="btn btn-ghost" id="importBtn">بازیابی پشتیبان</button>
+      <button class="btn btn-ghost danger" id="clearBtn">پاک‌کردن همه</button>
+    </div>
+    <input type="file" id="fileInput" accept=".json,application/json" style="display:none">
+  </div>
+
+  <details open>
+    <summary>راهنمای استفاده از برنامهٔ تخمین رتبه</summary>
+    <div class="info">
+      این برنامه با بهره‌گیری از داده‌های کارنامه‌های سال‌های گذشته، رتبهٔ شما را پیش‌بینی می‌کند و نتیجهٔ نهایی را در قالب یک «عدد مشخص» و یک «بازهٔ تخمینی» ارائه می‌دهد.<br><br>
+
+      <b style="color:var(--txt);font-size:13px;">نکات کلیدی سیستم</b><br>
+      <b>سهمیه:</b> مبنای محاسبه در تمامی مدل‌های این برنامه، سهمیهٔ آزاد است.<br>
+      <b>تأثیر سختی سؤالات:</b> در نظر داشته باشید که سطح دشواری سؤالات در کنکور سال‌های مختلف متفاوت است و این موضوع تأثیر چشمگیری بر نتایج پیش‌بینی دارد.<br>
+      <b>محدودیت داده‌ها:</b> چنانچه درصدهایی که وارد می‌کنید منجر به رتبه‌ای خارج از دامنهٔ داده‌های آموزشی برنامه شود، نتایج فاقد دقت لازم خواهند بود و سیستم پیام اخطاری به شما نمایش خواهد داد.<br><br>
+
+      <b style="color:var(--txt);font-size:13px;">جزئیات و تفاوت مدل‌های پیش‌بینی</b><br>
+      <b style="color:var(--amber);">مدل ۱۴۰۴</b><br>
+      • این مدل برای تخمین رتبه به معدل مؤثر شما در کنکور (و نه معدل کل) نیاز دارد تا تأثیر سوابق تحصیلی را با دقت بالاتری نشان دهد.<br>
+      • داده‌های آموزشی این مدل تا رتبهٔ ۱۹۰ را پوشش می‌دهد و در این بازه، از دقت فوق‌العاده‌ای برخوردار است.<br><br>
+      <b style="color:var(--teal);">مدل ۱۴۰۳</b><br>
+      • این مدل تأثیر معدل را در محاسبات خود در نظر نمی‌گیرد.<br>
+      • داده‌های آموزشی این مدل تا رتبهٔ ۱۵۰۰ را شامل می‌شود؛ اما توجه داشته باشید که دقت تخمین برای رتبه‌های بالاتر از ۶۰۰ با افت قابل‌توجهی همراه خواهد بود.
+    </div>
+  </details>
+
+  <footer>داده‌ها فقط روی همین دستگاه ذخیره می‌شوند؛ برای اطمینان، هرازگاهی نسخهٔ پشتیبان تهیه کنید.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ---------- مدل‌ها (پارامترهای دقیق از پایتون) ---------- */
+const MODELS = {
+  m1404:{ features:["math","gmat","english","gpa"],
+    mean:[57.948846,50.421538,19.589615,16.070769],
+    scale:[15.824857,11.774103,24.979451,1.665727],
+    coef:[-0.922092,-0.74042,-0.599947,-0.116199],
+    intercept:3.842621, sigma:0.203656, min:4, max:185 },
+  m1403:{ features:["math","gmat","english"],
+    mean:[21.521739,43.956522,19.108696],
+    scale:[17.057115,14.610831,18.575613],
+    coef:[-0.804848,-0.625653,-0.372322],
+    intercept:5.434986, sigma:0.245687, min:15, max:1849 }
+};
+
+function predict(m, vals){           // vals در همان ترتیب m.features
+  let logp = m.intercept;
+  for(let i=0;i<m.coef.length;i++){
+    logp += m.coef[i]*((vals[i]-m.mean[i])/m.scale[i]);
+  }
+  const z=1.28, clip=r=>Math.max(1,Math.round(r));
+  const point=clip(Math.exp(logp));
+  return { point, low:clip(Math.exp(logp-z*m.sigma)), high:clip(Math.exp(logp+z*m.sigma)),
+           oor: point<m.min || point>m.max };
+}
+const examScore=(math,gmat,eng)=>(2*gmat+2*math+1*eng)/5;
+
+/* ---------- کمک‌تابع‌های عدد فارسی ---------- */
+const FA="۰۱۲۳۴۵۶۷۸۹";
+const toFa=s=>String(s).replace(/[0-9]/g,d=>FA[d]);
+function parseNum(str){
+  if(str==null) return NaN;
+  let s=String(str).trim()
+    .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[٫،]/g,".");
+  if(s==="") return NaN;
+  return Number(s);
+}
+
+/* ---------- ذخیره‌سازی ---------- */
+const KEY="mba_rank_entries_v1", SEQKEY="mba_rank_seq_v1";
+let entries=[], seq=0, storageOK=true;
+function load(){
+  try{
+    entries=JSON.parse(localStorage.getItem(KEY)||"[]");
+    seq=parseInt(localStorage.getItem(SEQKEY)||"0",10)||0;
+  }catch(e){ entries=[]; seq=0; }
+}
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(entries));
+    localStorage.setItem(SEQKEY,String(seq));
+  }catch(e){
+    storageOK=false;
+    toast("ذخیرهٔ خودکار ممکن نشد؛ حتماً «دانلود پشتیبان» بگیر.");
+  }
+}
+function codeFor(n){              // 0->A ... 25->Z, 26->A2 ...
+  const cyc=Math.floor(n/26), idx=n%26;
+  return String.fromCharCode(65+idx)+(cyc?String(cyc+1):"");
+}
+
+/* ---------- ورودی و پیش‌نمایش زنده ---------- */
+const F={math:el("math"),gmat:el("gmat"),eng:el("eng"),gpa:el("gpa")};
+function el(id){return document.getElementById(id);}
+function readField(input, lo, hi){
+  const v=parseNum(input.value);
+  const ok=!isNaN(v)&&v>=lo&&v<=hi;
+  return {v,ok,empty:input.value.trim()===""};
+}
+function validate(){
+  const m=readField(F.math,-33.34,100), g=readField(F.gmat,-33.34,100),
+        e=readField(F.eng,-33.34,100), p=readField(F.gpa,0,20);
+  setBad("f-math",m), setBad("f-gmat",g), setBad("f-eng",e), setBad("f-gpa",p);
+  return {m,g,e,p, allOk:m.ok&&g.ok&&e.ok&&p.ok};
+}
+function setBad(id,res){
+  const node=el(id);
+  if(!res.empty && !res.ok) node.classList.add("bad"); else node.classList.remove("bad");
+}
+function live(){
+  const {m,g,e,p,allOk}=validate();
+  const subjOk=m.ok&&g.ok&&e.ok;
+  // مدل ۱۴۰۳ فقط سه درس می‌خواهد
+  paint("1403", subjOk ? predict(MODELS.m1403,[m.v,g.v,e.v]) : null,"بدون معدل");
+  // مدل ۱۴۰۴ معدل هم می‌خواهد
+  paint("1404", allOk ? predict(MODELS.m1404,[m.v,g.v,e.v,p.v]) : null,"با معدل");
+  el("composite").innerHTML = subjOk
+    ? 'نمرهٔ ترکیبی وزن‌دار: <b>'+toFa(examScore(m.v,g.v,e.v).toFixed(1))+'</b>' : "";
+  el("addBtn").disabled = !allOk;
+}
+function paint(year,r,fallback){
+  const rankEl=el("r"+year), rngEl=el("rng"+year), box=el("res"+year);
+  if(!r){ rankEl.textContent="—"; rankEl.classList.add("placeholder");
+    rngEl.textContent=fallback; box.classList.remove("warn"); return; }
+  rankEl.textContent=toFa(r.point); rankEl.classList.remove("placeholder");
+  rngEl.textContent="بازهٔ "+toFa(r.low)+"–"+toFa(r.high);
+  box.classList.toggle("warn", r.oor);
+}
+Object.values(F).forEach(i=>i.addEventListener("input",live));
+
+/* ---------- افزودن ---------- */
+el("addBtn").addEventListener("click",()=>{
+  const {m,g,e,p,allOk}=validate();
+  if(!allOk) return;
+  const entry={
+    id:Date.now()+"-"+Math.random().toString(36).slice(2,6),
+    code:codeFor(seq++),
+    math:m.v, gmat:g.v, eng:e.v, gpa:p.v,
+    exam:examScore(m.v,g.v,e.v),
+    r1404:predict(MODELS.m1404,[m.v,g.v,e.v,p.v]),
+    r1403:predict(MODELS.m1403,[m.v,g.v,e.v])
+  };
+  entries.push(entry); save(); render(entry.id);
+  toast("افزوده شد: "+entry.code+" — رتبهٔ ۱۴۰۴ ≈ "+toFa(entry.r1404.point));
+  ["math","gmat","eng","gpa"].forEach(k=>{}); // مقادیر می‌مانند تا مقایسهٔ سریع راحت باشد
+});
+
+/* ---------- رندر جدول ---------- */
+function render(highlightId){
+  const tb=el("tbody"); tb.innerHTML="";
+  const sorted=[...entries].sort((a,b)=>a.r1404.point-b.r1404.point);
+  el("count").textContent = entries.length? toFa(entries.length)+" مورد" : "";
+  el("empty").style.display = entries.length? "none":"block";
+  sorted.forEach((en,i)=>{
+    const tr=document.createElement("tr");
+    if(i===0) tr.classList.add("best");
+    if(en.id===highlightId) tr.classList.add("new");
+    const fmtRank=(r,cls)=>'<span class="rk '+cls+'">'+toFa(r.point)+
+        '<small>'+toFa(r.low)+'–'+toFa(r.high)+'</small></span>';
+    const fmtPct=v=>'<span class="pct num">'+toFa(Number(v).toLocaleString("en-US"))+'</span>';
+    tr.innerHTML=
+      '<td><span class="code">'+en.code+'</span>'+(i===0?'<span class="badge">بهترین</span>':'')+'</td>'+
+      '<td>'+fmtPct(en.gmat)+'</td><td>'+fmtPct(en.math)+'</td><td>'+fmtPct(en.eng)+'</td>'+
+      '<td>'+fmtPct(en.gpa)+'</td>'+
+      '<td>'+fmtRank(en.r1404,"y")+'</td>'+
+      '<td>'+fmtRank(en.r1403,"t")+'</td>'+
+      '<td><button class="del" data-id="'+en.id+'" aria-label="حذف">✕</button></td>';
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll(".del").forEach(b=>b.addEventListener("click",()=>{
+    entries=entries.filter(x=>x.id!==b.dataset.id); save(); render();
+  }));
+}
+
+/* ---------- پشتیبان ---------- */
+el("exportBtn").addEventListener("click",()=>{
+  if(!entries.length) return toast("جدول خالی است.");
+  const data=JSON.stringify({app:"mba-rank",seq,entries},null,2);
+  const blob=new Blob([data],{type:"application/json"});
+  const url=URL.createObjectURL(blob), a=document.createElement("a");
+  const d=new Date(), pad=n=>String(n).padStart(2,"0");
+  a.href=url; a.download="mba-rank-backup-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".json";
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  toast("فایل پشتیبان دانلود شد.");
+});
+el("importBtn").addEventListener("click",()=>el("fileInput").click());
+el("fileInput").addEventListener("change",ev=>{
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const obj=JSON.parse(reader.result);
+      if(!obj||!Array.isArray(obj.entries)) throw 0;
+      entries=obj.entries; seq=obj.seq||entries.length; save(); render();
+      toast("بازیابی شد: "+toFa(entries.length)+" مورد.");
+    }catch(e){ toast("فایل معتبر نبود."); }
+    el("fileInput").value="";
+  };
+  reader.readAsText(file);
+});
+el("clearBtn").addEventListener("click",()=>{
+  if(!entries.length) return;
+  if(confirm("همهٔ داده‌ها پاک شوند؟ (اگر پشتیبان نگرفته‌ای، اول دانلود بگیر)")){
+    entries=[]; seq=0; save(); render(); toast("پاک شد.");
+  }
+});
+
+/* ---------- toast ---------- */
+let tHandle;
+function toast(msg){
+  const t=el("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(tHandle); tHandle=setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+/* ---------- شروع ---------- */
+load(); render(); live();
+</script>
+</body>
+</html>
