@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>پیش‌بین رتبهٔ ارشد MBA</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root{
     --bg:#0E1620; --bg2:#0B1118;
@@ -350,20 +351,51 @@ function paint(year,r,fallback){
   rngEl.textContent="بازهٔ "+toFa(r.low)+"–"+toFa(r.high);
   box.classList.toggle("warn", r.oor);
 }
-Object.values(F).forEach(i=>i.addEventListener("input",live));
+Object.values(F).forEach(i=>i.addEventListener("input",()=>{live(); scheduleLiveLog();}));
+
+/* ---------- هویت کاربر تلگرام ---------- */
+let tgUser=null;
+try{
+  if(window.Telegram && Telegram.WebApp){
+    Telegram.WebApp.ready();
+    const u=Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user;
+    if(u) tgUser={id:u.id, name:[u.first_name,u.last_name].filter(Boolean).join(" "), username:u.username||""};
+  }
+}catch(err){}
+const SESSION_ID=tgUser ? "tg"+tgUser.id : "anon-"+Math.random().toString(36).slice(2,10);
 
 /* ---------- ثبت ورودی در گوگل‌شیت ---------- */
 const LOG_URL="https://script.google.com/macros/s/AKfycby_FMILPITlbZhAEHZxn_C2evghd3VqYO_cNQDbRPcCHCem1Momai5MVvpK0Q5sUmxrag/exec";
-function logEntry(entry){
-  fetch(LOG_URL,{
-    method:"POST", mode:"no-cors",
-    headers:{"Content-Type":"text/plain"},
-    body:JSON.stringify({
-      math:entry.math, gmat:entry.gmat, eng:entry.eng, gpa:entry.gpa,
-      r1404:entry.r1404.point, r1403:entry.r1403.point
-    })
-  }).catch(()=>{});
+let lastLogSent="";
+function postLog(fields, useBeacon){
+  const payload=JSON.stringify(Object.assign({
+    uid:SESSION_ID, name:(tgUser&&tgUser.name)||"", username:(tgUser&&tgUser.username)||""
+  }, fields));
+  if(payload===lastLogSent) return;
+  lastLogSent=payload;
+  if(useBeacon && navigator.sendBeacon){
+    navigator.sendBeacon(LOG_URL, new Blob([payload],{type:"text/plain"}));
+  }else{
+    fetch(LOG_URL,{method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:payload}).catch(()=>{});
+  }
 }
+let liveLogTimer=null;
+function scheduleLiveLog(){
+  clearTimeout(liveLogTimer);
+  liveLogTimer=setTimeout(()=>sendLiveLog(false), 1500);
+}
+function sendLiveLog(useBeacon){
+  if(F.math.value.trim()===""&&F.gmat.value.trim()===""&&F.eng.value.trim()===""&&F.gpa.value.trim()==="") return;
+  const {m,g,e,p,allOk}=validate();
+  const subjOk=m.ok&&g.ok&&e.ok;
+  const r1404=allOk?predict(MODELS.m1404,[m.v,g.v,e.v,p.v]).point:"";
+  const r1403=subjOk?predict(MODELS.m1403,[m.v,g.v,e.v]).point:"";
+  postLog({math:F.math.value, gmat:F.gmat.value, eng:F.eng.value, gpa:F.gpa.value, r1404, r1403, confirmed:"خیر"}, useBeacon);
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){ clearTimeout(liveLogTimer); sendLiveLog(true); }
+});
+window.addEventListener("pagehide",()=>{ clearTimeout(liveLogTimer); sendLiveLog(true); });
 
 /* ---------- افزودن ---------- */
 el("addBtn").addEventListener("click",()=>{
@@ -378,7 +410,9 @@ el("addBtn").addEventListener("click",()=>{
     r1403:predict(MODELS.m1403,[m.v,g.v,e.v])
   };
   entries.push(entry); save(); render(entry.id);
-  logEntry(entry);
+  clearTimeout(liveLogTimer);
+  postLog({math:entry.math, gmat:entry.gmat, eng:entry.eng, gpa:entry.gpa,
+    r1404:entry.r1404.point, r1403:entry.r1403.point, confirmed:"بله"}, false);
   toast("افزوده شد: "+entry.code+" — رتبهٔ ۱۴۰۴ ≈ "+toFa(entry.r1404.point));
   ["math","gmat","eng","gpa"].forEach(k=>{}); // مقادیر می‌مانند تا مقایسهٔ سریع راحت باشد
 });
